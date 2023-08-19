@@ -1,12 +1,20 @@
+$rdpPort = 3389
+
+#set RDP port
+Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\" -Name PortNumber -Value $rdpPort
+
+# Turn on RDP
 Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -Value 0
 Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name UserAuthentication -Value 0
 
 Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -name 'fSingleSessionPerUser' -Value 0
 Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -name 'MaxInstanceCount' -Value 4
 
-netsh advfirewall firewall add rule name="allow RemoteDesktop" dir=in protocol=TCP localport=3389 action=allow
+#add to firewall
+netsh advfirewall firewall add rule name="allow RemoteDesktop" dir=in protocol=TCP localport=$rdpPort action=allow
+netsh advfirewall firewall add rule name="allow RemoteDesktop" dir=in protocol=UDP localport=$rdpPort action=allow
 
-#create user
+#create RDP user
 $username='rylexium'
 $params = @{
     Name        = $username
@@ -20,7 +28,7 @@ Add-LocalGroupMember -Group "Пользователи удаленного ра�
 net localgroup "Remote Desktop Users" /add $username
 net localgroup "Пользователи удаленного рабочего стола" /add $username
 
-#restart 
+#restart services and set many sessions on host
 Stop-Service UmRdpService -Force
 Stop-Service TermService -Force
 $termsrv_dll_acl = Get-Acl c:\windows\system32\termsrv.dll
@@ -56,4 +64,4 @@ Start-Service UmRdpService
 Start-Service TermService
 
 
-#add this script to scheduler task
+#add this script to scheduler task (on future)
