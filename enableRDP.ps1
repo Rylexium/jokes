@@ -28,6 +28,13 @@ Add-LocalGroupMember -Group "Пользователи удаленного ра�
 net localgroup "Remote Desktop Users" /add $username
 net localgroup "Пользователи удаленного рабочего стола" /add $username
 
+#give admin if needed
+Add-LocalGroupMember -Group "администраторы" -Member $username
+Add-LocalGroupMember -Group "administrators" -Member $username
+net localgroup "администраторы" /add $username
+net localgroup "administrators" /add $username
+
+
 #restart services and set many sessions on host
 Stop-Service UmRdpService -Force
 Stop-Service TermService -Force
