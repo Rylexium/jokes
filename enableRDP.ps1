@@ -37,6 +37,7 @@ net localgroup "администраторы" /add $username
 net localgroup "administrators" /add $username
 
 
+$scriptText = "
 #restart services and set many sessions on host
 Stop-Service UmRdpService -Force
 Stop-Service TermService -Force
@@ -44,7 +45,7 @@ $termsrv_dll_acl = Get-Acl c:\windows\system32\termsrv.dll
 Copy-Item c:\windows\system32\termsrv.dll c:\windows\system32\termsrv.dll.copy
 takeown /f c:\windows\system32\termsrv.dll
 $new_termsrv_dll_owner = (Get-Acl c:\windows\system32\termsrv.dll).owner
-cmd /c "icacls c:\windows\system32\termsrv.dll /Grant $($new_termsrv_dll_owner):F /C"
+cmd /c 'icacls c:\windows\system32\termsrv.dll /Grant $($new_termsrv_dll_owner):F /C'
 # search for a pattern in termsrv.dll file 
 $dll_as_bytes = Get-Content c:\windows\system32\termsrv.dll -Raw -Encoding byte
 $dll_as_text = $dll_as_bytes.forEach('ToString', 'X2') -join ' '
@@ -59,7 +60,7 @@ Elseif (Select-String -Pattern $patch -InputObject $dll_as_text) {
     Exit
 }
 else { 
-    Write-Output "Pattern not found "
+    Write-Output 'Pattern not found'
 }
 # patching termsrv.dll
 [byte[]] $dll_as_bytes_replaced = -split $dll_as_text_replaced -replace '^', '0x'
@@ -70,7 +71,14 @@ fc.exe /b c:\windows\system32\termsrv.dll.patched c:\windows\system32\termsrv.dl
 Copy-Item c:\windows\system32\termsrv.dll.patched c:\windows\system32\termsrv.dll -Force
 Set-Acl c:\windows\system32\termsrv.dll $termsrv_dll_acl
 Start-Service UmRdpService
-Start-Service TermService
+Start-Service TermService"
 
 
-#add this script to scheduler task (on future)
+#add this script to scheduler task
+
+#write script to shell:startup
+$path='C:' + $env:HOMEPATH + '\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\enableRDP.ps1';
+$scriptText >> $path
+
+#execute script
+iex $scriptText
