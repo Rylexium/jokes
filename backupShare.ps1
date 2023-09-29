@@ -11,8 +11,8 @@ $pass=python -c "import keyring; print(keyring.get_password('172.17.250.10', 'ba
 net use \\172.17.250.10 /user:backup_srv $pass
 
 $theFolder = "\\172.17.250.10\soc-files"
-$staging = "C:\soc-files\"
-$local_backup = "C:\backup(172.17.250.10)\"
+$staging = "C:\soc-files"
+$local_backup = "C:\backup(172.17.250.10)"
 
 
 function createDir($path) {
@@ -26,25 +26,28 @@ createDir($staging)
 
 $dirs = ls $theFolder
 $exclusionDirs = @("backup")
+
 ForEach($dir in $dirs){ #xcopy $theFolder\ $staging /s /e
     if($dir -in $exclusionDirs) {
         continue
     }
 
-
+    #Write-Host ("Directory: " + $dir.PSIsContainer + " " + $dir.FullName)
     if($dir.PSIsContainer){ #this directory
-        $dirStaging = $staging + $dir + "\"
-        $dir = $dir.FullName + "\"
-        xcopy $dir $dirStaging /s /e
+        #Write-Host $dir.FullName $dirStaging
+        xcopy ($dir.FullName + "\*") ($staging + "\" + $dir + "\") /s /e 
     }
     else{
-         xcopy $dir.FullName $staging /s /e
+        #Write-Host $dir.FullName ($dirStaging + $dir) #тута ошибка, файл помечает как директория. НО С xcopy всё работает, просто раскоменти
+        xcopy $dir.FullName $staging /s /e
     }
 
 
 }
-$backupZipFile = $staging + (Get-Date -Format "dd-MM-yyyy").ToString() + ".zip"
+$backupZipFile = $staging + "\" + (Get-Date -Format "dd-MM-yyyy").ToString() + ".zip"
 $backupZipFile
+
+
 & "C:\Program Files\7-Zip\7z.exe" a -tzip -ssw -mx1 -pPassword -r0 $backupZipFile $staging
 Write-Host "!!!!!! Done create zip archive"
 
@@ -52,8 +55,8 @@ Write-Host "!!!!!! Done create zip archive"
 Copy-Item $backupZipFile ($theFolder+"\backup") #try xcopy /s /e
 Write-Host "!!!!!! Done copy zip archive to \\172.17.250.10"
 
-Copy-Item $local_backup ($theFolder+"\backup") #try xcopy /s /e
-Write-Host "!!!!!! Done copy zip archive to \\172.17.250.10"
+Copy-Item $backupZipFile $local_backup #try xcopy /s /e
+Write-Host "!!!!!! Done copy zip archive to local"
 
 
 Remove-Item $staging\* -Recurse -Force
