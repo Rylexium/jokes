@@ -1,9 +1,7 @@
 $ErrorActionPreference = "Stop"
 
-#$theFolder = "C:\Users\aleks\ERMACK"
-#Copy-Item : Слишком длинный путь или имя файла. Полное имя файла должно содержать меньше 260 знаков, а имя каталога - меньше 248 знаков.
+chcp 65001
 
-[Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding("utf-8")
 reg delete "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /f
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1
 
@@ -24,6 +22,10 @@ function createDir($path) {
 createDir($local_backup)
 createDir($staging)
 
+Remove-Item $staging\* -Recurse -Force
+Remove-Item $staging
+Write-Host "!!!!!! Done delete files from staging"
+
 $dirs = ls $theFolder
 $exclusionDirs = @("backup")
 
@@ -34,29 +36,25 @@ ForEach($dir in $dirs){ #xcopy $theFolder\ $staging /s /e
 
     #Write-Host ("Directory: " + $dir.PSIsContainer + " " + $dir.FullName)
     if($dir.PSIsContainer){ #this directory
-        #Write-Host $dir.FullName $dirStaging
         xcopy ($dir.FullName + "\*") ($staging + "\" + $dir + "\") /s /e 
     }
     else{
-        #Write-Host $dir.FullName ($dirStaging + $dir) #тута ошибка, файл помечает как директория. НО С xcopy всё работает, просто раскоменти
         xcopy $dir.FullName $staging /s /e
     }
 
 
 }
-$backupZipFile = $staging + "\" + (Get-Date -Format "dd-MM-yyyy").ToString() + ".zip"
+$backupZipFile = $local_backup + "\" + (Get-Date -Format "dd-MM-yyyy").ToString() + ".zip"
 $backupZipFile
 
 
-& "C:\Program Files\7-Zip\7z.exe" a -tzip -ssw -mx1 -pPassword -r0 $backupZipFile $staging
+& 'C:\Program Files\7-Zip\7z.exe' a -mx2 -tzip -ssw -r0 $backupZipFile $staging\* # create archive and move to local storage #experement with params -mx2, mb -mx5 ?!?!?
 Write-Host "!!!!!! Done create zip archive"
-
-
-Copy-Item $backupZipFile ($theFolder+"\backup") #try xcopy /s /e
-Write-Host "!!!!!! Done copy zip archive to \\172.17.250.10"
-
-Copy-Item $backupZipFile $local_backup #try xcopy /s /e
 Write-Host "!!!!!! Done copy zip archive to local"
+
+
+Copy-Item $backupZipFile ($theFolder+"\backup") #send archive to share server
+Write-Host "!!!!!! Done copy zip archive to \\172.17.250.10"
 
 
 Remove-Item $staging\* -Recurse -Force
