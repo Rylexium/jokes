@@ -48,7 +48,7 @@ $backupZipFile = $local_backup + "\" + (Get-Date -Format "dd-MM-yyyy").ToString(
 $backupZipFile
 
 
-& 'C:\Program Files\7-Zip\7z.exe' a -mx2 -tzip -ssw -r0 $backupZipFile $staging\* # create archive and move to local storage #experement with params -mx2, mb -mx5 ?!?!?
+& 'C:\Program Files\7-Zip\7z.exe' a -mx2 -tzip -ssw -r0 $backupZipFile $staging\* # create archive and move to local storage
 Write-Host "!!!!!! Done create zip archive"
 Write-Host "!!!!!! Done copy zip archive to local"
 
