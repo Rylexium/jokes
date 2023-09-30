@@ -29,6 +29,11 @@ Write-Host "!!!!!! Done delete files from staging"
 $dirs = ls $theFolder
 $exclusionDirs = @("backup")
 
+if((Get-NetQosPolicy | select -Property Name) -eq $null){
+    New-NetQosPolicy -Name "SMBRestrictFileCopySpeed" -SMB -ThrottleRateActionBitsPerSecond 100MB #limit for uploading
+}
+
+
 ForEach($dir in $dirs){ #xcopy $theFolder\ $staging /s /e
     if($dir -in $exclusionDirs) {
         continue
@@ -60,3 +65,5 @@ Write-Host "!!!!!! Done copy zip archive to \\172.17.250.10"
 Remove-Item $staging\* -Recurse -Force
 Remove-Item $staging
 Write-Host "!!!!!! Done delete files from staging"
+
+Remove-NetQosPolicy -Name SMBRestrictFileCopySpeed
