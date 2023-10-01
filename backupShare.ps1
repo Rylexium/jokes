@@ -80,8 +80,8 @@ if(Test-Path $backupZipFile){
 }
 
 # -bb3 - full log, -stm16 - 16 threats, -y - access all dialogs, -mx5 - step of compress, -tzip - type (zip) of archive, -ssw - analogue "force", -r0 - recursive all directories
-try{
-    & 'C:\Program Files\7-Zip\7z.exe' a -bb2 -stm16 -y -mx9 -t7z -ssw -r0 $backupZipFile $staging # create archive and move to local storage
+try{ #mx2 40gb -> 30gb, mx5 40gb -> ?gb, mx9 40gb ->?gb
+    & 'C:\Program Files\7-Zip\7z.exe' a -bb2 -stm32 -y -mx9 -t7z -ssw -r0 $backupZipFile $staging # create archive and move to local storage
 }catch {
     Write-Host "Error when archiving data..."
 }
