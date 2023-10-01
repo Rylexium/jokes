@@ -49,6 +49,10 @@ function removeRestrictTrafficSMBPolicy($policy){
     }
 }
 
+function sendNotificationToTelegram($msg){
+    python .\main.py $msg $pathToScriptLog
+}
+
 createDir($localBackup) #create dir if not exists
 createDir($staging)
 removeFilesDir($staging) #remove all files, if exists staging
@@ -101,7 +105,7 @@ try { #experemt with mx9, mb use mx2 or mx5. 7z(mx9): 40gb -> 29gb, zip(mx9): 40
 } catch {
     Write-Host "Error when archiving data..."
     $isPreviousStepError=$true
-    python .\main.py "архивации данных" $pathToScriptLog
+    sendNotificationToTelegram("архивации данных")
 }
 
 if(-not $isPreviousStepError){
@@ -115,7 +119,7 @@ if(-not $isPreviousStepError){
     } catch {
         Write-Host "Error when send archive to share server..."
         $isPreviousStepError=$true
-        python .\main.py "отправки архива на файловый сервер" $pathToScriptLog
+        sendNotificationToTelegram("отправки архива на файловый сервер")
     }
 }
 
