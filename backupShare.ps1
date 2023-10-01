@@ -100,11 +100,11 @@ try {
     removeFilesDir($staging)
     Remove-Item $staging
     Write-Host "!!!!!! Done delete files and directory from $staging"
-
-    removeRestrictTrafficSMBPolicy($nameOfSmbPolicy)
-    $timeExecutionBackupScript.Stop()
-    $timeExecutionBackupScript.Elapsed
-    Write-Host "========================================================"
 } catch {
     Write-Host "Error when send archive to share server..."
 }
+
+removeRestrictTrafficSMBPolicy($nameOfSmbPolicy)
+$timeExecutionBackupScript.Stop()
+$timeExecutionBackupScript.Elapsed
+Write-Host "========================================================"
