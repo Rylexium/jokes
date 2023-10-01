@@ -42,7 +42,7 @@ function removeRestrictTrafficSMBPolicy($policy){
 
 createDir($localBackup) #create dir if not exists
 createDir($staging)
-#removeFilesDir($staging) #remove all files, if exists staging
+removeFilesDir($staging) #remove all files, if exists staging
 
 
 removeRestrictTrafficSMBPolicy($nameOfSmbPolicy) #delete previous policy restrict speed smb
@@ -62,10 +62,10 @@ ForEach($dir in (ls $theFolder)){ #download all dir and files from share server 
 
     #Write-Host ("Directory: " + $dir.PSIsContainer + " " + $dir.FullName)
     if($dir.PSIsContainer){ #this directory, we process it different #p.s add to path "\*"
-        #xcopy ($dir.FullName + "\*") ($staging + "\" + $dir + "\") /s /e 
+        xcopy ($dir.FullName + "\*") ($staging + "\" + $dir + "\") /s /e 
     }
     else{ #just copy this file
-        #xcopy $dir.FullName $staging /s /e
+        xcopy $dir.FullName $staging /s /e
     }
 }
 
@@ -85,7 +85,7 @@ if(Test-Path $backupZipFile){ #delete previous archive if exists, this script cr
 }
 
 # -bb3 - full log, -stm16 - 16 threats, -y - access all dialogs, -mx5 - step of compress, -tzip - type (zip) of archive, -ssw - analogue "force", -r0 - recursive all directories
-try {
+try { #experemt with mx9, mb use mx2 or mx5. 7z(mx9): 40gb -> 29gb, zip(mx9): 40gb -> 31.8gb 
     & 'C:\Program Files\7-Zip\7z.exe' a -bb2 -stm32 -y -mx9 -t7z -ssw -r0 $backupZipFile $staging # create archive and move to local storage
     Write-Host "!!!!!! Done create zip archive"
     Write-Host "!!!!!! Done copy zip archive to local"
@@ -97,8 +97,8 @@ try {
     Copy-Item $backupZipFile ($theFolder+"\backup") #send archive to share server
     Write-Host "!!!!!! Done copy zip archive to \\172.17.250.10"
 
-    #removeFilesDir($staging)
-    #Remove-Item $staging
+    removeFilesDir($staging)
+    Remove-Item $staging
     Write-Host "!!!!!! Done delete files and directory from $staging"
 
     removeRestrictTrafficSMBPolicy($nameOfSmbPolicy)
