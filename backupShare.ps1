@@ -1,4 +1,5 @@
 #$ErrorActionPreference = "Stop"
+$timeExecutionBackupScript = [Diagnostics.Stopwatch]::StartNew()
 
 chcp 65001 #Enable russian symbols, sometime work.
 
@@ -33,7 +34,7 @@ function removeFilesDir($path){
 
 createDir($localBackup)
 createDir($staging)
-removeFilesDir($staging)
+#removeFilesDir($staging)
 
 
 
@@ -56,14 +57,14 @@ ForEach($dir in (ls $theFolder)){ #download all dir and files from share server 
 
     #Write-Host ("Directory: " + $dir.PSIsContainer + " " + $dir.FullName)
     if($dir.PSIsContainer){ #this directory, we process it different #p.s add to path "\*"
-        xcopy ($dir.FullName + "\*") ($staging + "\" + $dir + "\") /s /e 
+        #xcopy ($dir.FullName + "\*") ($staging + "\" + $dir + "\") /s /e 
     }
     else{ #just copy this file
-        xcopy $dir.FullName $staging /s /e
+        #xcopy $dir.FullName $staging /s /e
     }
 }
 
-$backupZipFile = $localBackup + "\" + (Get-Date -Format "dd-MM-yyyy").ToString() + ".zip" #example path: C:\stage\25-09-2023.zip
+$backupZipFile = $localBackup + "\" + (Get-Date -Format "dd-MM-yyyy").ToString() + ".7z" #example path: C:\stage\25-09-2023.zip
 $backupZipFile
 if(Test-Path $backupZipFile) { #remove file with same name
     Remove-Item $backupZipFile -Force
@@ -71,20 +72,31 @@ if(Test-Path $backupZipFile) { #remove file with same name
 
 if(-not (Test-Path $staging)){ #staging not exists throw exception
     throw [Exception] "Not found $staging"
-   
+}
+
+
+if(Test-Path $backupZipFile){
+    Remote-Item $backupZipFile -Force
 }
 
 # -bb3 - full log, -stm16 - 16 threats, -y - access all dialogs, -mx5 - step of compress, -tzip - type (zip) of archive, -ssw - analogue "force", -r0 - recursive all directories
-& 'C:\Program Files\7-Zip\7z.exe' a -bb3 -stm16 -y -mx5 -tzip -ssw -r0 $backupZipFile $staging\* # create archive and move to local storage
+try{
+    & 'C:\Program Files\7-Zip\7z.exe' a -bb2 -stm16 -y -mx9 -t7z -ssw -r0 $backupZipFile $staging # create archive and move to local storage
+}catch {
+    Write-Host "Error when archiving data..."
+}
+
 Write-Host "!!!!!! Done create zip archive"
 Write-Host "!!!!!! Done copy zip archive to local"
 
 Copy-Item $backupZipFile ($theFolder+"\backup") #send archive to share server
 Write-Host "!!!!!! Done copy zip archive to \\172.17.250.10"
 
-removeFilesDir($staging)
-Remove-Item $staging
+#removeFilesDir($staging)
+#Remove-Item $staging
 Write-Host "!!!!!! Done delete files and directory from $staging"
 
 Remove-NetQosPolicy -Name $nameOfSmbPolicy -Confirm:$false
+$timeExecutionBackupScript.Stop()
+$timeExecutionBackupScript.Elapsed
 Write-Host "========================================================"
