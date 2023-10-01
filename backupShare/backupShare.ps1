@@ -1,12 +1,12 @@
 #$ErrorActionPreference = "Stop"
 
+$timeExecutionBackupScript = [Diagnostics.Stopwatch]::StartNew()
+
 $pathToScriptLog = "C:\Distr\script_backup\backupScript.log"
-if(Test-Path $pathToLog) {
-    Remove-Item $pathToLog -Force
+if(Test-Path $pathToScriptLog) {
+    Remove-Item $pathToScriptLog -Force
 }
 Start-Transcript -Path $pathToScriptLog
-
-$timeExecutionBackupScript = [Diagnostics.Stopwatch]::StartNew()
 
 chcp 65001 #Enable russian symbols, sometime work.
 
@@ -49,8 +49,14 @@ function removeRestrictTrafficSMBPolicy($policy){
     }
 }
 
-function sendNotificationToTelegram($msg){
+function sendNotificationToTelegram($msg) {
+    getElapsedSeconds
     python .\main.py $msg $pathToScriptLog
+}
+
+function getElapsedSeconds {
+    $elapsedSeconds=$timeExecutionBackupScript.Elapsed.Seconds
+    Write-Host "Total time: $elapsedSeconds sec."
 }
 
 createDir($localBackup) #create dir if not exists
@@ -125,6 +131,6 @@ if(-not $isPreviousStepError){
 
 removeRestrictTrafficSMBPolicy($nameOfSmbPolicy)
 $timeExecutionBackupScript.Stop()
-$timeExecutionBackupScript.Elapsed
+getElapsedSeconds
 Write-Host "========================================================"
 Stop-Transcript
