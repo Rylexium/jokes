@@ -25,5 +25,4 @@ def edit_pattern(msg):
 
 
 #"архивации данных" "отправки архива на файловый сервер"
-send_message(edit_pattern(sys.argv[1]), sys.argv[2])
-send_message(edit_pattern(sys.argv[1]), sys.argv[2])
+send_message(text=edit_pattern(sys.argv[1]), path_to_log=sys.argv[2])
