@@ -32,7 +32,7 @@ def edit_pattern(msg, source=None, folder=None, local_backup=None, remote_backup
     msg += wrapper("folder", folder)
     msg += wrapper("localBackup", local_backup)
     msg += wrapper("remoteBackup", remote_backup)
-    return msg
+    return msg.rstrip('\n')
 
 
 #"архивации данных" "отправки архива на файловый сервер"
