@@ -23,6 +23,7 @@ $theFolder = "\\172.17.250.10\soc-files" #path to dir what need backup
 $staging = "\\$ipHost\C$\soc-files" #Tmp directory, here downloading all files from share server
 $localBackup = "\\$ipHost\C$\backup(172.17.250.10)" #Here save .zip file with all files from share server.
 
+$exclusionDirs = @("backup") #name of directory exclusion
 $nameOfSmbPolicy = "SMBRestrictFileCopySpeed" #name of policy, what restrict smb(traffic) speed
 $speedSMBUploadingBitsPerSecond = 1600MB
 
@@ -74,22 +75,22 @@ if($nameOfSmbPolicy -in [array](Get-NetQosPolicy | select -Property Name)){ #cre
     New-NetQosPolicy -Name "$nameOfSmbPolicy" -SMB -ThrottleRateActionBitsPerSecond $speedSMBUploadingBitsPerSecond  #limit for uploading (in mbit) 800Mbit = 100mbait
 }
 
-
-$exclusionDirs = @("backup") #name of directory exclusion
-#robocopy $theFolder $staging /mir /r:3 /w:30 /b /256 /mt /z /XD \\172.17.250.10\soc-files\backup # her command not copy projects(encrypted file) and others files, because i select xcopy
-ForEach($dir in (ls $theFolder)){ #download all dir and files from share server to stage
-    if($dir -in $exclusionDirs) { #if name dir in exclusion -> continue
-        continue
-    }
-
-
-    if($dir.PSIsContainer){ #this directory, we process it different #p.s add to path "\*"
-        xcopy ($dir.FullName + "\*") ($staging + "\" + $dir + "\") /s /e
-    }
-    else{ #just copy this file
-        xcopy $dir.FullName $staging /s /e
-    }
-}
+#/b /e /xa:s /xjd /sl /a-:hs /mt /v /fp /eta
+#/MIR /E /XO /xx /tee /eta /R:3 /W:1 /SEC /b /256 /mt /z
+robocopy $theFolder $staging /b /e /xa:s /xjd /sl /a-:hs /R:1000 /W:2 /mt /v /fp /eta /XD \\172.17.250.10\soc-files\backup # her command not copy projects(encrypted file) and others files, because i select xcopy
+#ForEach($dir in (ls $theFolder)){ #download all dir and files from share server to stage
+#    if($dir -in $exclusionDirs) { #if name dir in exclusion -> continue
+#        continue
+#    }
+#
+#
+#    if($dir.PSIsContainer){ #this directory, we process it different #p.s add to path "\*"
+#        xcopy ($dir.FullName + "\*") ($staging + "\" + $dir + "\") /s /e
+#    }
+#    else{ #just copy this file
+#        xcopy $dir.FullName $staging /s /e
+#    }
+#}
 
 $backupZipFile = $localBackup + "\" + (Get-Date -Format "dd-MM-yyyy").ToString() + ".7z" #example path: C:\stage\25-09-2023.7z
 $backupZipFile
