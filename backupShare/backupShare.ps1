@@ -76,20 +76,20 @@ if($nameOfSmbPolicy -in [array](Get-NetQosPolicy | select -Property Name)){ #cre
 }
 
 
-robocopy $theFolder $staging /mir /r:3 /w:30 /b /256 /mt /z /XD \\172.17.250.10\soc-files\backup # her command not copy projects(encrypted file)
-#ForEach($dir in (ls $theFolder)){ #download all dir and files from share server to stage
-#    if($dir -in $exclusionDirs) { #if name dir in exclusion -> continue
-#        continue
-#    }
-#
-#
-#    if($dir.PSIsContainer){ #this directory, we process it different #p.s add to path "\*"
-#        xcopy ($dir.FullName + "\*") ($staging + "\" + $dir + "\") /s /e
-#    }
-#    else{ #just copy this file
-#        xcopy $dir.FullName $staging /s /e
-#    }
-#}
+#robocopy $theFolder $staging /mir /r:3 /w:30 /b /256 /mt /z /XD \\172.17.250.10\soc-files\backup # her command not copy projects(encrypted file) and others files, because i select xcopy
+ForEach($dir in (ls $theFolder)){ #download all dir and files from share server to stage
+    if($dir -in $exclusionDirs) { #if name dir in exclusion -> continue
+        continue
+    }
+
+
+    if($dir.PSIsContainer){ #this directory, we process it different #p.s add to path "\*"
+        xcopy ($dir.FullName + "\*") ($staging + "\" + $dir + "\") /s /e
+    }
+    else{ #just copy this file
+        xcopy $dir.FullName $staging /s /e
+    }
+}
 
 $backupZipFile = $localBackup + "\" + (Get-Date -Format "dd-MM-yyyy").ToString() + ".7z" #example path: C:\stage\25-09-2023.7z
 $backupZipFile
