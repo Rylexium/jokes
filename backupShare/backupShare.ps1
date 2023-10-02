@@ -23,7 +23,6 @@ $theFolder = "\\172.17.250.10\soc-files" #path to dir what need backup
 $staging = "\\$ipHost\C$\soc-files" #Tmp directory, here downloading all files from share server
 $localBackup = "\\$ipHost\C$\backup(172.17.250.10)" #Here save .zip file with all files from share server.
 
-$exclusionDirs = @("backup") #name of directory exclusion
 $nameOfSmbPolicy = "SMBRestrictFileCopySpeed" #name of policy, what restrict smb(traffic) speed
 $speedSMBUploadingBitsPerSecond = 1600MB
 
@@ -76,6 +75,7 @@ if($nameOfSmbPolicy -in [array](Get-NetQosPolicy | select -Property Name)){ #cre
 }
 
 
+$exclusionDirs = @("backup") #name of directory exclusion
 #robocopy $theFolder $staging /mir /r:3 /w:30 /b /256 /mt /z /XD \\172.17.250.10\soc-files\backup # her command not copy projects(encrypted file) and others files, because i select xcopy
 ForEach($dir in (ls $theFolder)){ #download all dir and files from share server to stage
     if($dir -in $exclusionDirs) { #if name dir in exclusion -> continue
