@@ -19,10 +19,25 @@ def send_message(text, path_to_log, parse_mode="HTML"):
     loop.run_until_complete(_async_send_message())
 
 
-def edit_pattern(msg):
-    return "<b>Backup (soc-files)</b>\n" \
-           f"🛑 Произошла ошибка во время: <b><i>{msg}</i></b>."
+def wrapper(key, item):
+    if item is not None:
+        return f"<b>{key}</b>: <code>{item}</code>\n"
+    return ""
+
+
+def edit_pattern(msg, source=None, folder=None, local_backup=None, remote_backup=None):
+    msg = "<b>Backup</b>\n" \
+           f"🛑 Произошла ошибка во время: <b><i>{msg}</i></b>.\n\n"
+    msg += wrapper("source", source)
+    msg += wrapper("folder", folder)
+    msg += wrapper("localBackup", local_backup)
+    msg += wrapper("remoteBackup", remote_backup)
+    return msg
 
 
 #"архивации данных" "отправки архива на файловый сервер"
-send_message(text=edit_pattern(sys.argv[1]), path_to_log=sys.argv[2])
+send_message(edit_pattern(msg=sys.argv[1], source=sys.argv[3], folder=sys.argv[4],
+                          local_backup=sys.argv[5], remote_backup=sys.argv[6]), sys.argv[2])
+
+#start:
+# python .\main.py "архивация данных" '.\backupScript (8).log' "soc-siemcore(172.17.250.66)" "\\172.17.250.10\soc-files" "\\172.17.250.66\C$\backup(172.17.250.10)" "\\172.17.250.10\soc-files\backup"
