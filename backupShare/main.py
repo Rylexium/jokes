@@ -1,5 +1,5 @@
+import argparse
 import asyncio
-import sys
 
 import keyring
 from aiogram import Bot, types
@@ -32,12 +32,28 @@ def edit_pattern(msg, source=None, folder=None, local_backup=None, remote_backup
     msg += wrapper("folder", folder)
     msg += wrapper("localBackup", local_backup)
     msg += wrapper("remoteBackup", remote_backup)
-    return msg.rstrip('\n')
+    return msg.rstrip('\n').rstrip('\n')
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='',
+                                     usage='use "python %(prog)s --help" for more information',
+                                     formatter_class=argparse.RawTextHelpFormatter)
+
+    parser.add_argument("-m", "--msg", required=False, help="Error message", default=None)
+    parser.add_argument("-s", "--source", required=False, help="Source (creds of host)", default=None)
+    parser.add_argument("-f", "--folder", required=False, help="What is backup", default=None)
+    parser.add_argument("-lb", "--localbackup", required=False, help="Path to local backup where save archive", default=None)
+    parser.add_argument("-rb", "--remotebackup", required=False, help="Path to remote backup where save archive", default=None)
+    parser.add_argument("-l", "--log", required=False, help="Path to backupScript log", default=None)
+
+    return parser.parse_args()
+
+
+args = parse_arguments()
 
 
 #"архивации данных" "отправки архива на файловый сервер"
-send_message(edit_pattern(msg=sys.argv[1], source=sys.argv[3], folder=sys.argv[4],
-                          local_backup=sys.argv[5], remote_backup=sys.argv[6]), sys.argv[2])
-
-#start:
-# python .\main.py "архивация данных" '.\backupScript (8).log' "soc-siemcore(172.17.250.66)" "\\172.17.250.10\soc-files" "\\172.17.250.66\C$\backup(172.17.250.10)" "\\172.17.250.10\soc-files\backup"
+#python .\main.py --msg "архивация данных" --log '.\backupScript (8).log' --source "soc-siemcore(172.17.250.66)" --folder "\\172.17.250.10\soc-files" --localbackup "\\172.17.250.66\C$\backup(172.17.250.10)" --remotebackup '\\172.17.250.10\soc-files\backup'
+send_message(edit_pattern(msg=args.msg, source=args.source, folder=args.folder,
+                          local_backup=args.localbackup, remote_backup=args.remotebackup), args.log)

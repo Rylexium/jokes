@@ -1,0 +1,28 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20231001210606
+Username: SOC-SIEMCORE\Azizov-AA
+RunAs User: SOC-SIEMCORE\Azizov-AA
+Configuration Name: 
+Machine: SOC-SIEMCORE (Microsoft Windows NT 10.0.17763.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe .\backupScript.ps1
+Process ID: 40460
+PSVersion: 5.1.17763.2268
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.17763.2268
+BuildVersion: 10.0.17763.2268
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is C:\Distr\script_backup\backupScript.log
+Active code page: 65001
+The operation completed successfully.
+The operation completed successfully.
+The command completed successfully.
+C:\backup(172.17.250.10)\01-10-2023.7z
+!!!!!! Done create zip archive
+!!!!!! Done copy zip archive to local
+Error when send archive to share server...
+Total time: 1 sec.
