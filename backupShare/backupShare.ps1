@@ -52,8 +52,7 @@ function removeRestrictTrafficSMBPolicy($policy){
 
 function sendNotificationToTelegram($msg) {
     getElapsedSeconds
-    $hostname = hostname
-    python C:\Distr\script_backup\main.py --msg $msg --log $pathToScriptLog --source "$hostname($ipHost)" --folder $theFolder --localbackup $localBackup --remotebackup $theFolder"\backup"
+    python C:\Distr\script_backup\main.py --msg $msg --log $pathToScriptLog --source "$(hostname)($ipHost)" --folder $theFolder --localbackup $localBackup --remotebackup $theFolder"\backup"
 }
 
 function getElapsedTime {
