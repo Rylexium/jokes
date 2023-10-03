@@ -56,9 +56,8 @@ function sendNotificationToTelegram($msg) {
     python C:\Distr\script_backup\main.py --msg $msg --log $pathToScriptLog --source "$hostname($ipHost)" --folder $theFolder --localbackup $localBackup --remotebackup $theFolder"\backup"
 }
 
-function getElapsedSeconds {
-    $elapsedSeconds=$timeExecutionBackupScript.Elapsed.Seconds
-    Write-Host "Total time: $elapsedSeconds sec."
+function getElapsedTime {
+    Write-Host $timeExecutionBackupScript.Elapsed
 }
 
 createDir($localBackup) #create dir if not exists
