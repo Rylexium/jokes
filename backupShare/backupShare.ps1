@@ -68,7 +68,7 @@ removeRestrictTrafficSMBPolicy($nameOfSmbPolicy) #delete previous policy restric
 
 
 
-if($nameOfSmbPolicy -in [array](Get-NetQosPolicy | select -Property Name)){ #create policy restrict smb speed
+if($nameOfSmbPolicy -not -in [array](Get-NetQosPolicy | select -Property Name).Name){ #create policy restrict smb speed
     Write-Host "Add Policy: $nameOfSmbPolicy"
     New-NetQosPolicy -Name "$nameOfSmbPolicy" -SMB -ThrottleRateActionBitsPerSecond $speedSMBUploadingBitsPerSecond  #limit for uploading (in mbit) 800Mbit = 100mbait
 }
