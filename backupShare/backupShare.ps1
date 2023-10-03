@@ -44,7 +44,7 @@ function removeDir($path){
 }
 
 function removeRestrictTrafficSMBPolicy($policy){
-    if($policy -in [array](Get-NetQosPolicy | select -Property Name)){ #check policy, if exists delete
+    if($policy -in [array](Get-NetQosPolicy | select -Property Name).Name){ #check policy, if exists delete
         Write-Host "Delete Policy: $policy"
         Remove-NetQosPolicy -Name $policy -Confirm:$false
     }
@@ -107,7 +107,7 @@ if(Test-Path $backupZipFile){ #delete previous archive if exists, this script cr
 }
 
 # -bb3 - full log, -stm16 - 16 threats, -y - access all dialogs, -mx5 - step of compress, -tzip - type (zip) of archive, -ssw - analogue "force", -r0 - recursive all directories
-try { #experemt with mx9, mb use mx2 or mx5. 7z(mx9): 40gb -> 29gb, zip(mx9): 40gb -> 31.8gb
+try { #experemt with mx9, mb use mx2 or mx5. 7z(mx9): 40gb -> 29gb, zip(mx9): 40gb -> 31.8gb 
     & 'C:\Program Files\7-Zip\7z.exe' a -bb2 -stm32 -y -mx9 -t7z -ssw -r0 $backupZipFile $staging # create archive and move to local storage
     Write-Host "!!!!!! Done create zip archive"
     Write-Host "!!!!!! Done copy zip archive to local"
