@@ -13,8 +13,8 @@ Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Se
 Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services' -name 'MaxInstanceCount' -Value 4 # max sessions
 
 #add to firewall
-netsh advfirewall firewall add rule name="allow RemoteDesktop" dir=in protocol=TCP localport=$rdpPort action=allow
-netsh advfirewall firewall add rule name="allow RemoteDesktop" dir=in protocol=UDP localport=$rdpPort action=allow
+netsh advfirewall firewall add rule name="allow RemoteDesktop TCP" dir=in protocol=TCP localport=$rdpPort action=allow
+netsh advfirewall firewall add rule name="allow RemoteDesktop UDP" dir=in protocol=UDP localport=$rdpPort action=allow
 
 #create RDP user
 $username='rylexium'
