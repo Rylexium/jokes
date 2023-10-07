@@ -1,6 +1,7 @@
 #$ErrorActionPreference = "Stop"
 
 $timeExecutionBackupScript = [Diagnostics.Stopwatch]::StartNew()
+getElapsedSeconds
 $nowDate = get-date -format "dd-MM-yyyy HH_MM_s"
 $pathToScriptLog = "C:\Distr\script_backup\log\backupScript_$nowDate.log"
 
@@ -51,13 +52,10 @@ function removeRestrictTrafficSMBPolicy($policy){
 }
 
 function sendNotificationToTelegram($msg) {
-    getElapsedSeconds
+    Write-Host $timeExecutionBackupScript.Elapsed
     python C:\Distr\script_backup\main.py --msg $msg --log $pathToScriptLog --source "$(hostname)($ipHost)" --folder $theFolder --localbackup $localBackup --remotebackup $theFolder"\backup"
 }
 
-function getElapsedTime {
-    Write-Host $timeExecutionBackupScript.Elapsed
-}
 
 createDir($localBackup) #create dir if not exists
 createDir($staging)
@@ -68,10 +66,12 @@ removeRestrictTrafficSMBPolicy($nameOfSmbPolicy) #delete previous policy restric
 
 
 
-if($nameOfSmbPolicy -not -in [array](Get-NetQosPolicy | select -Property Name).Name){ #create policy restrict smb speed
+if($nameOfSmbPolicy -in [array](Get-NetQosPolicy | select -Property Name)){ #create policy restrict smb speed
     Write-Host "Add Policy: $nameOfSmbPolicy"
     New-NetQosPolicy -Name "$nameOfSmbPolicy" -SMB -ThrottleRateActionBitsPerSecond $speedSMBUploadingBitsPerSecond  #limit for uploading (in mbit) 800Mbit = 100mbait
 }
+
+
 
 #/b /e /xa:s /xjd /sl /a-:hs /mt /v /fp /eta
 #/MIR /E /XO /xx /tee /eta /R:3 /W:1 /SEC /b /256 /mt /z
@@ -120,9 +120,6 @@ if(-not $isPreviousStepError){
     try {
         Copy-Item $backupZipFile ($theFolder+"\backup") #send archive to share server
         Write-Host "!!!!!! Done copy zip archive to \\172.17.250.10"
-
-        removeDir($staging)
-        Write-Host "!!!!!! Done delete files and directory from $staging"
     } catch {
         Write-Host "Error when send archive to share server..."
         $isPreviousStepError=$true
@@ -130,8 +127,13 @@ if(-not $isPreviousStepError){
     }
 }
 
+
+Remove-Item $staging\ -Force -Recurse
+Remove-Item $staging -Force
+Write-Host "!!!!!! Done delete files and directory from $staging"
+
 removeRestrictTrafficSMBPolicy($nameOfSmbPolicy)
 $timeExecutionBackupScript.Stop()
-getElapsedSeconds
+Write-Host $timeExecutionBackupScript.Elapsed
 Write-Host "========================================================"
 Stop-Transcript
