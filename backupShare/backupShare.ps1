@@ -1,7 +1,7 @@
 #$ErrorActionPreference = "Stop"
 
 $timeExecutionBackupScript = [Diagnostics.Stopwatch]::StartNew()
-getElapsedSeconds
+
 $nowDate = get-date -format "dd-MM-yyyy HH_MM_s"
 $pathToScriptLog = "C:\Distr\script_backup\log\backupScript_$nowDate.log"
 
@@ -39,7 +39,8 @@ function createDir($path) {
 
 function removeDir($path){
     if(-not(Test-Path $path)){
-        Remove-Item $path -Force -Recurse
+        #(ls $).ForEach{Remove-Item $_.Fullname -Force -Recurse} #async delete
+        Get-ChildItem $path -Recurse | Remove-Item -Recurse #sync delete, vrode...
         Write-Host "!!!!!! Done delete files from $path"
     }
 }
